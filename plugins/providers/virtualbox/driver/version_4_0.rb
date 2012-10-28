@@ -144,9 +144,22 @@ module VagrantPlugins
               options[:hostport],
               "",
               options[:guestport]]
+            protocols = {
+              :both => ["tcp", "udp"],
+              :tcp  => ["tcp"],
+              :udp  => ["udp"]
+            }
+            protocols[options[:protocol] || :tcp].each do |protocol|
+              pf_builder = [protocol + options[:name],
+                protocol,
+                "",
+                options[:hostport],
+                "",
+                options[:guestport]]
 
-            args.concat(["--natpf#{options[:adapter] || 1}",
-                        pf_builder.join(",")])
+              args.concat(["--natpf#{options[:adapter] || 1}",
+                          pf_builder.join(",")])
+            end
           end
 
           execute("modifyvm", @uuid, *args) if !args.empty?
